@@ -1,0 +1,162 @@
+package com.company;
+import java.lang.reflect.Array;
+import java.util.*;
+
+class Job {
+    String jobName;
+    int jobLength;
+    int currentJobLength;
+    int jobPriority;
+    int finalPriority;
+    long entryTime;
+    long endTime = 0;
+    long waitTime = 0;
+    long currentTime = 0;
+
+
+    public Job(int i) { // Job object
+        setName(i+1);
+        setLength();
+        setCurrentLength();
+        setPriority();
+        setFinalPriority();
+        setEntryTime(i);
+        setEndTime(0);
+        setWaitTime(0);
+        setCurrentTime(i);
+    }
+
+
+    public void setName(int i){
+        this.jobName = "Job_" + i;
+    }
+
+    public String getName(){
+        return this.jobName;
+    }
+
+    public void setLength() {
+        int min = 1;
+        int max = 70;
+        this.jobLength = (int) (Math.random() * max + min);
+    }
+
+    public int getLength() {
+        return this.jobLength;
+    }
+
+    public void setCurrentLength() {
+        this.currentJobLength = getLength();
+    }
+
+    public int getCurrentLength(){
+        return this.currentJobLength;
+    }
+
+    public void setPriority() {
+        int min = 1;
+        int max = 40;
+        this.jobPriority = (int) (Math.random() * max + min);
+    }
+
+    public int getPriority() {
+        return this.jobPriority;
+    }
+
+    public void setFinalPriority() {
+        this.finalPriority = getPriority();
+    }
+
+    public int getFinalPriority(Job job) {
+        return this.finalPriority;
+    }
+
+    public void setEntryTime(int i){
+        this.entryTime = i;
+    }
+
+    public long getEntryTime() {
+        return this.entryTime;
+    }
+
+    public void setEndTime(int i){
+        this.endTime = i;
+    }
+
+    public long getEndTime() {
+        return this.endTime;
+    }
+
+    public void setWaitTime(int i){
+        this.waitTime = i;
+    }
+
+    public long getWaitTime() {
+        return this.waitTime;
+    }
+
+    public void setCurrentTime(int i){
+        this.currentTime = i;
+    }
+
+    public long getCurrentTime(){
+        return this.currentTime;
+    }
+}
+
+class PriorityQueueSimulatorTester {
+    int MaxNumberOfJobs;
+    long currentTime = 0;
+    List<Job> jobsInputArray = new ArrayList<>();
+
+    public PriorityQueueSimulatorTester(int MaxNumberOfJobs){
+        this.MaxNumberOfJobs = MaxNumberOfJobs;
+        this.jobsInputArray = setJobsInputArray(jobsInputArray);
+    }
+
+    public int getArraySize() {
+        return MaxNumberOfJobs;
+    }
+
+    public Job getJobAtIndex(int i){
+        return jobsInputArray.get(i);
+    }
+
+    // list implementation
+    public List<Job> setJobsInputArray(List<Job> jobsInputArray) {
+        for (int i = 0; i < MaxNumberOfJobs; i++) {
+            Job newJob = new Job(i);
+            jobsInputArray.add(newJob);
+        }
+        return jobsInputArray;
+    } // the list will be an unsorted list
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+        // write your code here
+        
+        List<Job> sortedJobList = new ArrayList<>(100);
+        PriorityQueueSimulatorTester testerQueue = new PriorityQueueSimulatorTester(100);
+
+        // we will then sort the list in term of priority in a new list
+
+
+            // higher priority at the en of the queue
+            for (int priority = 40; priority >= 1; priority--) {
+                //go through all the array searching for the priority from 1 to 40 -> complexity of 40n -> O(n)
+                for (int i = 0; i < testerQueue.getArraySize(); i++) {
+                    if (testerQueue.getJobAtIndex(i).getPriority() == priority)
+                        sortedJobList.add(testerQueue.getJobAtIndex(i));
+                }
+            }
+        for (int i = 0; i < testerQueue.getArraySize(); i++) {
+            System.out.println(testerQueue.getJobAtIndex(i).getName() + "\t\tPriority: " + testerQueue.getJobAtIndex(i).getPriority() + "   \t\tLength: " + testerQueue.getJobAtIndex(i).getLength());
+        }
+        for (Job job : sortedJobList) {
+            System.out.println(job.getName() + "\t\tPriority: " + job.getPriority() + "   \t\tLength: " + job.getLength());
+        }
+    }
+}
+
