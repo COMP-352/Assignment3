@@ -12,6 +12,7 @@ class Job {
     long endTime = 0;
     long waitTime = 0;
    // long currentTime = 0;
+    int priorityIndex = 0;
     int index;
 
 
@@ -112,6 +113,10 @@ class Job {
         return this.waitTime;
     }
 
+    public int getPriorityIndex(){
+        return this.priorityIndex;
+    }
+
  /*   public void setCurrentTime(long i){
         this.currentTime = i;
     }
@@ -123,7 +128,6 @@ class Job {
 
 class PriorityQueueSimulatorTester {
     int MaxNumberOfJobs;
-    long currentTime = 0;
     List<Job> jobsInputArray = new LinkedList<>();
 
     public PriorityQueueSimulatorTester(int MaxNumberOfJobs){
@@ -150,6 +154,7 @@ class PriorityQueueSimulatorTester {
 }
 
 class Heap {
+    int currentPriorityIndex = 0;
     long totalWaitingTime=0;
     long currentTime = 0;
     long priorityChangeCounter = 0;
@@ -187,6 +192,7 @@ class Heap {
             this.jobArray.set(largest, buffer);
             sortTheHeap(largest);
         }
+        setPriorityIndex();
     }
 
     public void printHeap() {
@@ -194,6 +200,15 @@ class Heap {
 
         for (Job job : this.jobArray)
             System.out.println(job.getName() + "\t\tPriority: " + job.getPriority() + "   \t\tLength: " + job.getLength());
+    }
+
+    public void setPriorityIndex(){
+        for (int i = 0; i < this.jobArray.size() ; i++)
+            for (int priority = 1; priority <=40; priority++)
+                if (this.jobArray.get(i).getPriority() == priority) {
+                    this.jobArray.get(i).priorityIndex = i;
+                    break;
+                }
     }
 
     public void incrementCurrentTime(){
@@ -204,12 +219,12 @@ class Heap {
         return this.currentTime;
     }
 
-    public void swap(int minIndex){
+    /*public void swap(int minIndex){
         Job bufferJob = this.jobArray.get(0);
         this.jobArray.set(minIndex, this.jobArray.get(0));
         this.jobArray.set(0, bufferJob);
         priorityChangeCounter++;
-    }
+    }*/
 
     public void setTotalWaitingTime(long i){
         this.totalWaitingTime = i + this.totalWaitingTime;
@@ -222,6 +237,7 @@ class Heap {
     public long getPriorityChangeCounter() {
         return this.priorityChangeCounter;
     }
+
 }
 
 class SortedList{
@@ -263,20 +279,21 @@ public class Main {
 
         Heap heap = new Heap(testerQueue); // unsorted array based heap
         heap.printHeap();  // (higher priority at the leaves)
+
         long startTime = System.nanoTime();
         int cycleCounter = 0;
-        int changingIndex = findMaxPriorityIndex(heap, 0, findMaxPriority(heap));
 
         while (heap.jobArray != null) {
-            int minIndex = findMinPriorityIndex(heap);
             if (cycleCounter == 30) {
-                heap.swap(minIndex);
+                int minIndex = findMinPriorityIndex(heap);
+                heap.jobArray.get(minIndex).changePriority(1);
                 heap.sortTheHeap(0);
+                heap.priorityChangeCounter++;
                 cycleCounter = 0;
             }
+            int changingIndex = findMaxPriority(heap);
 
             PCU_Execution(heap, changingIndex);
-            changingIndex++;
             cycleCounter++;
         }
 
@@ -288,41 +305,31 @@ public class Main {
     public static int findMinPriorityIndex(Heap heap){
         int min = 0;
         for (int i = 0; i < heap.jobArray.size(); i++)
-            if (heap.jobArray.get(i).getPriority() <= min)
+            if (heap.jobArray.get(i).getPriority() >= min)
                 min = i;
         return min;
     }
 
     public static int findMaxPriority(Heap heap) {
-        int max = 0;
+        int max = 40;
         for (int i = 0; i < heap.jobArray.size(); i++)
-            if (heap.jobArray.get(i).getPriority() > max)
+            if (heap.jobArray.get(i).getPriority() < max) {
                 max = heap.jobArray.get(i).getPriority();
+                heap.currentPriorityIndex++;
+            }
         return max;
     }
 
-    public static int findMaxPriorityIndex(Heap heap, int previouslyChangedIndex, int previousPriority) {
+   /* public static int findMaxPriorityIndex(Heap heap, int previouslyChangedIndex, int previousPriority) {
         int maxIndex = 0;
-        if (previousPriority != 41) {
-            for (int index = previouslyChangedIndex; index < heap.jobArray.size(); index++) {
-                if (heap.jobArray.get(index).getPriority() == previousPriority) {
-                    maxIndex = index;
-                }
 
-            }
-            if (maxIndex == previouslyChangedIndex) {
-                for (int i = 0; i < heap.jobArray.size(); i++)
-                    if (heap.jobArray.get(i).getPriority() == previousPriority) {
-                        maxIndex = i;
-                    }
-            }
-        } else for (int index = 0; index < heap.jobArray.size(); index++) {
+        else for (int index = 0; index < heap.jobArray.size(); index++) {
             if (heap.jobArray.get(index).getPriority() < previousPriority) {
                 maxIndex = index;
             }
         }
         return maxIndex;
-    }
+    }*/
 
     public static void PCU_Execution(Heap heap, int changingIndex) {
 
@@ -338,10 +345,10 @@ public class Main {
             heap.sortTheHeap(0);
         }
         //  heap.jobArray.get(changingIndex).
-        System.out.println("Now executing: " + heap.jobArray.get(changingIndex).getName() + ". Job length: " +
-                heap.jobArray.get(changingIndex).getLength() + " cycles. Current remaining length: " +
-                heap.jobArray.get(changingIndex).getCurrentLength() + " cycles. Initial priority: " +
-                heap.jobArray.get(changingIndex).getPriority() + ". Current Priority: " +
+        System.out.println("Now executing: " + heap.jobArray.get(changingIndex).getName() + ".\tJob length: " +
+                heap.jobArray.get(changingIndex).getLength() + " cycles.\tCurrent remaining length: " +
+                heap.jobArray.get(changingIndex).getCurrentLength() + " cycles.\tInitial priority: " +
+                heap.jobArray.get(changingIndex).getPriority() + ".\tCurrent Priority: " +
                 heap.jobArray.get(changingIndex).getFinalPriority());
     }
 }
